@@ -4,10 +4,13 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.view.animation.AnimationUtils
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 
 class MainActivity : AppCompatActivity() {
 
@@ -35,11 +38,14 @@ class MainActivity : AppCompatActivity() {
         timeLeftTextView = findViewById(R.id.time_left_text_view)
         tapMeButton = findViewById(R.id.tap_me_button)
 
+        // Set button listener and animation for a button
         tapMeButton.setOnClickListener { view ->
             val bounceAnimation = AnimationUtils.loadAnimation(this, R.anim.bounce)
             view.startAnimation(bounceAnimation)
             incrementScore()
         }
+
+        // Saving values of score and timeLeft
         if (savedInstanceState != null) {
             score = savedInstanceState.getInt(SCORE_KEY)
             timeLeft = savedInstanceState.getInt(TIME_LEFT_KEY)
@@ -65,6 +71,30 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, "noDestroy called.")
     }
 
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        // Inflate the menu
+        super.onCreateOptionsMenu(menu)
+        menuInflater.inflate(R.menu.menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.about_item) {
+            showInfo()
+        }
+        return true
+    }
+
+    private fun showInfo() {
+        val dialogTitle = getString(R.string.about_title, BuildConfig.VERSION_NAME)
+        val dialogMessage = getString(R.string.about_message)
+
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle(dialogTitle)
+        builder.setMessage(dialogMessage)
+        builder.create().show()
+    }
+
     private fun incrementScore() {
         // increment score logic
         if (!gameStarted) {
@@ -86,6 +116,7 @@ class MainActivity : AppCompatActivity() {
         val initialTimeLeft = getString(R.string.time_left, 60)
         timeLeftTextView.text = initialTimeLeft
 
+        // Create timer
         countDownTimer = object : CountDownTimer(initialCountDown, countDownInterval) {
             override fun onTick(millisUntilFinished: Long) {
                 timeLeft = millisUntilFinished.toInt() / 1000
